@@ -1,4 +1,4 @@
-import { User, UserRole, Product, Test, Bill, Due, Settings, Employee, SalaryPayment, SalaryPaymentType, DailyExpense, Party, PartyPayment, PaymentMode, Gender, BillType, ReportStatus, BillItem, Payment } from '../types';
+import { User, UserRole, Product, Test, Bill, Due, Settings, Employee, SalaryPayment, DailyExpense, Party, PartyPayment } from '../types';
 
 export const mockUsers: User[] = [
     { id: 'user-1', fullName: 'Center Admin', email: 'center@test.com', password: 'password', role: UserRole.CENTER },
@@ -8,14 +8,7 @@ export const mockUsers: User[] = [
 
 export const mockOwnerDevices: string[] = ['user-2']; // Pre-populate with one owner device
 
-export const mockProducts: Product[] = [
-    { id: 'prod-1', name: 'Painkiller Tablets (10 pack)', price: 50, stock: 150, category: 'Medicine', isService: false },
-    { id: 'prod-2', name: 'Cough Syrup', price: 120, stock: 80, category: 'Medicine', isService: false },
-    { id: 'prod-3', name: 'Antiseptic Liquid', price: 85, stock: 30, category: 'First Aid', isService: false },
-    { id: 'prod-4', name: 'Band-Aids (20 pack)', price: 40, stock: 200, category: 'First Aid', isService: false },
-    { id: 'prod-5', name: 'Health Drink Powder', price: 350, stock: 5, category: 'Nutrition', isService: false },
-    { id: 'prod-6', name: 'Doctor Consultation', price: 500, stock: 999, category: 'Service', isService: true },
-];
+export const mockProducts: Product[] = [];
 
 export const mockTests: Test[] = [
   { id: 'test-LDBIO0035', code: 'LDBIO0035', name: 'ADENOSINE DEAMINASE (ADA)', mrp: 750, department: 'Biochemistry' },
@@ -326,123 +319,16 @@ export const mockSettings: Settings = {
     defaultPrintSize: 'A4',
 };
 
-export const mockEmployees: Employee[] = [
-    { id: 'emp-1', name: 'John Doe', role: 'Lab Technician', monthlySalary: 25000, phone: '9988776655' },
-    { id: 'emp-2', name: 'Alice Smith', role: 'Receptionist', monthlySalary: 18000, phone: '9988776654' },
-];
+export const mockEmployees: Employee[] = [];
 
-export const mockSalaryPayments: SalaryPayment[] = [
-    { id: 'sp-1', employeeId: 'emp-1', date: new Date(new Date().setDate(1)).toISOString(), amount: 25000, type: SalaryPaymentType.SALARY, notes: 'Monthly Salary' },
-    { id: 'sp-2', employeeId: 'emp-2', date: new Date(new Date().setDate(1)).toISOString(), amount: 18000, type: SalaryPaymentType.SALARY, notes: 'Monthly Salary' },
-    { id: 'sp-3', employeeId: 'emp-1', date: new Date(new Date().setDate(15)).toISOString(), amount: 5000, type: SalaryPaymentType.ADVANCE, notes: 'Advance payment' },
-];
+export const mockSalaryPayments: SalaryPayment[] = [];
 
-export const mockDailyExpenses: DailyExpense[] = [
-    { id: 'exp-1', date: new Date().toISOString(), description: 'Office Stationery', category: 'Office Supplies', amount: 500 },
-    { id: 'exp-2', date: new Date().toISOString(), description: 'Lunch for staff', category: 'Food', amount: 1200 },
-    { id: 'exp-3', date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), description: 'Cleaning supplies', category: 'Maintenance', amount: 750 },
-];
+export const mockDailyExpenses: DailyExpense[] = [];
 
-export const mockParties: Party[] = [
-    { id: 'party-1', name: 'MedSupply Inc.', contactPerson: 'Mr. Sharma', phone: '8877665544', email: 'sharma@medsupply.com', address: '456 Supply Rd, Commerce Town' },
-    { id: 'party-2', name: 'Global Reagents', contactPerson: 'Ms. Gupta', phone: '8877665533', email: 'gupta@globalreagents.com', address: '789 Reagent Ave, Science City' },
-];
+export const mockParties: Party[] = [];
 
-export const mockPartyPayments: PartyPayment[] = [
-    { id: 'pp-1', partyId: 'party-1', date: new Date(new Date().setDate(5)).toISOString(), amount: 50000, paymentMode: PaymentMode.UPI, notes: 'Invoice #MS-123' },
-    { id: 'pp-2', partyId: 'party-2', date: new Date(new Date().setDate(10)).toISOString(), amount: 75000, paymentMode: PaymentMode.CASH, notes: 'Invoice #GR-456' },
-];
+export const mockPartyPayments: PartyPayment[] = [];
 
-const today = new Date();
-const yesterday = new Date();
-yesterday.setDate(yesterday.getDate() - 1);
+export const mockBills: Bill[] = [];
 
-const medicalBill1Items: BillItem[] = [
-    { id: 'test-LDHEM0378', name: 'COMPLETE BLOOD COUNT (CBC)', price: 350, quantity: 1 },
-    { id: 'test-LDBIO0253', name: 'Blood Glucose Fasting (FBS)', price: 80, quantity: 1 },
-];
-const medicalBill1Subtotal = medicalBill1Items.reduce((acc, i) => acc + i.price * i.quantity, 0);
-const medicalBill1Discount = 30;
-const medicalBill1GrandTotal = medicalBill1Subtotal - medicalBill1Discount;
-const medicalBill1PaidAmount = medicalBill1GrandTotal;
-const medicalBill1DueAmount = 0;
-
-const medicalBill2Items: BillItem[] = [
-    { id: 'test-LDBIO0936', name: 'Liver Function Test Gold (LFT Gold)', price: 900, quantity: 1 },
-];
-const medicalBill2Subtotal = medicalBill2Items.reduce((acc, i) => acc + i.price * i.quantity, 0);
-const medicalBill2Discount = 0;
-const medicalBill2GrandTotal = medicalBill2Subtotal - medicalBill2Discount;
-const medicalBill2PaidAmount = 500;
-const medicalBill2DueAmount = medicalBill2GrandTotal - medicalBill2PaidAmount;
-
-const retailBill1Items: BillItem[] = [
-    { id: 'prod-1', name: 'Painkiller Tablets (10 pack)', price: 50, quantity: 2 },
-    { id: 'prod-2', name: 'Cough Syrup', price: 120, quantity: 1 },
-];
-const retailBill1Subtotal = retailBill1Items.reduce((acc, i) => acc + i.price * i.quantity, 0);
-const retailBill1Discount = 10;
-const retailBill1GrandTotal = retailBill1Subtotal - retailBill1Discount;
-const retailBill1PaidAmount = retailBill1GrandTotal;
-const retailBill1DueAmount = 0;
-
-
-export const mockBills: Bill[] = [
-    {
-        id: 'bill-1',
-        billNo: `B${today.toISOString().slice(0,10).replace(/-/g,'')}-001`,
-        date: today.toISOString(),
-        time: '10:30 AM',
-        billType: BillType.MEDICAL,
-        patient: { id: 'p-1', name: 'Rohan Sharma', age: 35, gender: Gender.MALE, phone: '9876543210', referredBy: 'Dr. Gupta' },
-        items: medicalBill1Items,
-        subtotal: medicalBill1Subtotal,
-        discount: medicalBill1Discount,
-        grandTotal: medicalBill1GrandTotal,
-        paidAmount: medicalBill1PaidAmount,
-        dueAmount: medicalBill1DueAmount,
-        payments: [{ mode: PaymentMode.UPI, amount: medicalBill1PaidAmount }],
-        reportStatus: ReportStatus.NOT_DELIVERED,
-    },
-    {
-        id: 'bill-2',
-        billNo: `B${today.toISOString().slice(0,10).replace(/-/g,'')}-002`,
-        date: today.toISOString(),
-        time: '11:15 AM',
-        billType: BillType.MEDICAL,
-        patient: { id: 'p-2', name: 'Priya Patel', age: 28, gender: Gender.FEMALE, phone: '9876543211', referredBy: 'Dr. Verma' },
-        items: medicalBill2Items,
-        subtotal: medicalBill2Subtotal,
-        discount: medicalBill2Discount,
-        grandTotal: medicalBill2GrandTotal,
-        paidAmount: medicalBill2PaidAmount,
-        dueAmount: medicalBill2DueAmount,
-        payments: [{ mode: PaymentMode.CASH, amount: medicalBill2PaidAmount }],
-        reportStatus: ReportStatus.NOT_DELIVERED,
-    },
-    {
-        id: 'bill-3',
-        billNo: `R${yesterday.toISOString().slice(0,10).replace(/-/g,'')}-001`,
-        date: yesterday.toISOString(),
-        time: '02:45 PM',
-        billType: BillType.RETAIL,
-        customerName: 'Suresh Kumar',
-        items: retailBill1Items,
-        subtotal: retailBill1Subtotal,
-        discount: retailBill1Discount,
-        grandTotal: retailBill1GrandTotal,
-        paidAmount: retailBill1PaidAmount,
-        dueAmount: retailBill1DueAmount,
-        payments: [{ mode: PaymentMode.CARD, amount: retailBill1PaidAmount }],
-    },
-];
-
-export const mockDues: Due[] = [
-    {
-        id: 'due-1',
-        billId: 'bill-2',
-        customerName: 'Priya Patel',
-        customerPhone: '9876543211',
-        totalDue: medicalBill2DueAmount,
-    }
-];
+export const mockDues: Due[] = [];

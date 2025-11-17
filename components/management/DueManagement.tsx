@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import useMockData from '../../hooks/useMockData';
 import { formatCurrency, exportToCsv } from '../../services/utils';
@@ -20,6 +19,12 @@ const DueManagement: React.FC = () => {
             due.totalDue > 0
         );
     }, [dues, filters]);
+
+    const summaryData = useMemo(() => {
+        const totalDue = filteredDues.reduce((sum, due) => sum + due.totalDue, 0);
+        const totalDefaulters = filteredDues.length;
+        return { totalDue, totalDefaulters };
+    }, [filteredDues]);
 
     const handleExport = () => {
         const dataToExport = filteredDues.map(d => ({
@@ -45,10 +50,21 @@ const DueManagement: React.FC = () => {
                     Export to Excel
                 </button>
             </div>
+            
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="bg-background p-4 rounded-lg">
+                    <p className="text-text-secondary text-sm">Total Due Amount</p>
+                    <p className="text-2xl font-bold font-poppins text-danger">{formatCurrency(summaryData.totalDue)}</p>
+                </div>
+                 <div className="bg-background p-4 rounded-lg">
+                    <p className="text-text-secondary text-sm">Total Defaulters</p>
+                    <p className="text-2xl font-bold font-poppins text-accent">{summaryData.totalDefaulters}</p>
+                </div>
+            </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <input name="name" placeholder="Customer Name..." value={filters.name} onChange={handleFilterChange} className={inputClasses}/>
-                <input name="phone" placeholder="Phone Number..." value={filters.phone} onChange={handleFilterChange} className={inputClasses}/>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <input name="name" placeholder="Filter by Customer Name..." value={filters.name} onChange={handleFilterChange} className={inputClasses}/>
+                <input name="phone" placeholder="Filter by Phone Number..." value={filters.phone} onChange={handleFilterChange} className={inputClasses}/>
             </div>
 
             <div className="overflow-x-auto">
@@ -69,11 +85,11 @@ const DueManagement: React.FC = () => {
                                 <td className="p-3">{due.customerPhone}</td>
                                 <td className="p-3 text-danger font-semibold">{formatCurrency(due.totalDue)}</td>
                                 <td className="p-3">{due.billId}</td>
-                                <td className="p-3 text-right">
-                                     <button className="bg-success/20 text-success px-3 py-1 rounded-md text-sm hover:bg-success/40 mr-2">
-                                        Receive Payment
+                                <td className="p-3 text-right space-x-2">
+                                     <button className="bg-success/20 text-success px-3 py-1 rounded-md text-sm hover:bg-success/40">
+                                        Receive
                                     </button>
-                                    <a href={`https://wa.me/${due.customerPhone}?text=Reminder: You have a due amount of ${formatCurrency(due.totalDue)} for bill ${due.billId}.`} target="_blank" rel="noopener noreferrer" className="bg-green-600/20 text-green-400 px-3 py-1 rounded-md text-sm hover:bg-green-600/40">
+                                    <a href={`https://wa.me/${due.customerPhone}?text=Reminder: You have a due amount of ${formatCurrency(due.totalDue)} for bill ${due.billId}.`} target="_blank" rel="noopener noreferrer" className={`inline-block px-3 py-1 rounded-md text-sm ${due.customerPhone ? 'bg-green-600/20 text-green-400 hover:bg-green-600/40' : 'bg-gray-500/20 text-gray-400 cursor-not-allowed'}`}>
                                         WhatsApp
                                     </a>
                                 </td>

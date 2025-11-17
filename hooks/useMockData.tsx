@@ -41,7 +41,7 @@ const useMockData = () => {
                 id: `due-${Date.now()}`,
                 billId: newBill.id,
                 customerName: newBill.patient?.name || newBill.customerName || 'N/A',
-                customerPhone: newBill.patient?.phone || 'N/A',
+                customerPhone: newBill.patient?.phone || '',
                 totalDue: newBill.dueAmount
             };
             setDues(prev => [newDue, ...prev]);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import * as reactToPrint from 'react-to-print';
-import { BillType, Product, Test, BillItem, Patient, Gender, PaymentMode, ReportStatus, Bill, Payment } from '../../types';
+import { BillType, Product, Test, BillItem, Patient, Gender, PaymentMode, ReportStatus, Bill, Payment, Settings } from '../../types';
 import useMockData from '../../hooks/useMockData';
 import { numberToWordsIndian, formatCurrency } from '../../services/utils';
 import PrintModal from '../print/PrintModal';
@@ -10,6 +10,64 @@ import { mockSettings } from '../../services/mockData';
 import { useToast } from '../../hooks/useToast';
 
 const useReactToPrint = (reactToPrint as any)?.default?.useReactToPrint || (reactToPrint as any)?.useReactToPrint;
+
+// Helper class to generate text bill content
+class TextBillGenerator {
+    private bill: Bill;
+    private settings: Settings;
+    
+    constructor(bill: Bill, settings: Settings) {
+        this.bill = bill;
+        this.settings = settings;
+    }
+
+    generate(): string {
+        const horizontalLine = '══════════════════════════════════════';
+        const thinLine = '———————————————————————';
+
+        const itemsText = this.bill.items.map(item =>
+            `• ${item.name} (x${item.quantity})  ₹${(item.price * item.quantity).toFixed(2)}`
+        ).join('\n');
+
+        const patientDetails = this.bill.billType === BillType.MEDICAL ? `
+👤 PATIENT DETAILS
+Name: ${this.bill.patient?.name}
+Age/Gender: ${this.bill.patient?.age}/${this.bill.patient?.gender}
+Phone: ${this.bill.patient?.phone}
+Doctor: ${this.bill.patient?.referredBy}
+` : '';
+
+        const paymentsText = this.bill.payments.map(p => `${p.mode}: ₹${p.amount.toFixed(2)}`).join(', ');
+
+        return `
+${horizontalLine}
+           ${this.settings.shopName}
+${horizontalLine}
+Address: ${this.settings.address}
+Phone: ${this.settings.phone}     GSTIN: ${this.settings.gstin}
+
+🧾 BILL DETAILS
+Bill No: ${this.bill.billNo}
+Date: ${new Date(this.bill.date).toLocaleDateString()}      Time: ${this.bill.time}
+Payment: ${paymentsText}
+${patientDetails}
+🔬 TESTS / PRODUCTS
+${itemsText}
+
+Subtotal: ₹${this.bill.subtotal.toFixed(2)}
+Discount: ₹${this.bill.discount.toFixed(2)}
+Grand Total: ₹${this.bill.grandTotal.toFixed(2)}
+Paid Amount: ₹${this.bill.paidAmount.toFixed(2)}
+Due Amount: ₹${this.bill.dueAmount.toFixed(2)}
+
+Amount in Words: ${numberToWordsIndian(this.bill.grandTotal)}
+${this.bill.reportStatus ? `\nReport Delivered: ${this.bill.reportStatus}` : ''}
+${thinLine}
+“This bill is computer generated. No seal or signature required. This invoice can also be used for claim purposes.”
+${thinLine}
+        `.trim();
+    }
+}
 
 const Billing: React.FC = () => {
     const [billType, setBillType] = useState<BillType>(BillType.MEDICAL);
@@ -327,64 +385,5 @@ const Billing: React.FC = () => {
         </div>
     );
 };
-
-// Helper class to generate text bill content
-class TextBillGenerator {
-    private bill: Bill;
-    private settings: typeof mockSettings;
-    
-    constructor(bill: Bill, settings: typeof mockSettings) {
-        this.bill = bill;
-        this.settings = settings;
-    }
-
-    generate(): string {
-        const horizontalLine = '══════════════════════════════════════';
-        const thinLine = '———————————————————————';
-
-        const itemsText = this.bill.items.map(item =>
-            `• ${item.name} (x${item.quantity})  ₹${(item.price * item.quantity).toFixed(2)}`
-        ).join('\n');
-
-        const patientDetails = this.bill.billType === BillType.MEDICAL ? `
-👤 PATIENT DETAILS
-Name: ${this.bill.patient?.name}
-Age/Gender: ${this.bill.patient?.age}/${this.bill.patient?.gender}
-Phone: ${this.bill.patient?.phone}
-Doctor: ${this.bill.patient?.referredBy}
-` : '';
-
-        const paymentsText = this.bill.payments.map(p => `${p.mode}: ₹${p.amount.toFixed(2)}`).join(', ');
-
-        return `
-${horizontalLine}
-           ${this.settings.shopName}
-${horizontalLine}
-Address: ${this.settings.address}
-Phone: ${this.settings.phone}     GSTIN: ${this.settings.gstin}
-
-🧾 BILL DETAILS
-Bill No: ${this.bill.billNo}
-Date: ${new Date(this.bill.date).toLocaleDateString()}      Time: ${this.bill.time}
-Payment: ${paymentsText}
-${patientDetails}
-🔬 TESTS / PRODUCTS
-${itemsText}
-
-Subtotal: ₹${this.bill.subtotal.toFixed(2)}
-Discount: ₹${this.bill.discount.toFixed(2)}
-Grand Total: ₹${this.bill.grandTotal.toFixed(2)}
-Paid Amount: ₹${this.bill.paidAmount.toFixed(2)}
-Due Amount: ₹${this.bill.dueAmount.toFixed(2)}
-
-Amount in Words: ${numberToWordsIndian(this.bill.grandTotal)}
-${this.bill.reportStatus ? `\nReport Delivered: ${this.bill.reportStatus}` : ''}
-${thinLine}
-“This bill is computer generated. No seal or signature required. This invoice can also be used for claim purposes.”
-${thinLine}
-        `.trim();
-    }
-}
-
 
 export default Billing;
