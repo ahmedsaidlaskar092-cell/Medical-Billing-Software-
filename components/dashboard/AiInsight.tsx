@@ -1,16 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { getDashboardInsights } from '../../services/geminiService';
 import useMockData from '../../hooks/useMockData';
 import Icon from '../ui/Icon';
 import Spinner from '../ui/Spinner';
+import { useToast } from '../../hooks/useToast';
 
 const AiInsight: React.FC = () => {
     const [insights, setInsights] = useState<string>('');
     const [loading, setLoading] = useState(false);
-    const { bills, products } = useMockData();
+    const { bills, products, loading: dataLoading } = useMockData();
+    const { addToast } = useToast();
 
-    const fetchInsights = async () => {
+    const fetchInsights = useCallback(async () => {
         setLoading(true);
         const today = new Date();
         const yesterday = new Date();
@@ -27,19 +29,19 @@ const AiInsight: React.FC = () => {
         try {
             const result = await getDashboardInsights(todaySale, yesterdaySale, avgBill, lowStockItems);
             setInsights(result);
-        } catch (error) {
-            setInsights("Could not load insights. Please check your Gemini API key.");
+        } catch (error: any) {
+            setInsights("Could not load insights at the moment.");
+            addToast({ message: error.message || 'AI Insight Error', type: 'error' });
         } finally {
             setLoading(false);
         }
-    };
+    }, [bills, products, addToast]);
     
     useEffect(() => {
-        if(bills.length > 0 && products.length > 0) {
+        if(!dataLoading && bills.length > 0 && products.length > 0) {
             fetchInsights();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [bills, products]);
+    }, [dataLoading, bills, products, fetchInsights]);
 
     return (
         <div className="bg-card border border-border-color rounded-xl p-6 backdrop-blur-md h-full">

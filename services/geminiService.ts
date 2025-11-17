@@ -20,6 +20,7 @@ export const getDashboardInsights = async (
     avgBill: number,
     lowStockItems: Product[]
 ): Promise<string> => {
+    if (!API_KEY) throw new Error("API key not configured.");
     try {
         const prompt = `
             Analyze the following daily sales data and provide 3 short, encouraging insights for a shop owner.
@@ -44,7 +45,7 @@ export const getDashboardInsights = async (
         return response.text;
     } catch (error) {
         console.error("Error fetching dashboard insights:", error);
-        return "Could not generate AI insights at the moment.";
+        throw new Error("Could not generate AI insights. Please check API key and try again.");
     }
 };
 
@@ -53,6 +54,7 @@ export const getDashboardInsights = async (
  * Performs complex analysis on sales data using the Pro model with thinking budget.
  */
 export const getComplexSalesReport = async (bills: Bill[]): Promise<string> => {
+    if (!API_KEY) throw new Error("API key not configured.");
     try {
         const prompt = `
         You are a business analyst. Analyze the provided sales data (last 30 days of bills) for a medical/retail shop. 
@@ -79,7 +81,7 @@ export const getComplexSalesReport = async (bills: Bill[]): Promise<string> => {
         return response.text;
     } catch (error) {
         console.error("Error fetching complex sales report:", error);
-        return "Failed to generate the advanced report. Please try again later.";
+        throw new Error("Failed to generate the advanced report. The Pro model may be busy.");
     }
 };
 
@@ -87,11 +89,11 @@ export const getComplexSalesReport = async (bills: Bill[]): Promise<string> => {
  * Generates a product description using a lightweight model.
  */
 export const generateProductDescription = async (productName: string): Promise<string> => {
+    if (!API_KEY) throw new Error("API key not configured.");
      try {
         const prompt = `Generate a short, concise, and appealing one-line description for a product named: "${productName}".`;
         
         const response = await ai.models.generateContent({
-            // FIX: Updated model name to 'gemini-flash-lite-latest' as per guidelines for gemini lite/flash lite.
             model: 'gemini-flash-lite-latest',
             contents: prompt,
         });
@@ -99,6 +101,6 @@ export const generateProductDescription = async (productName: string): Promise<s
         return response.text.trim();
     } catch (error) {
         console.error("Error generating product description:", error);
-        return "";
+        throw new Error("Failed to generate description.");
     }
 };

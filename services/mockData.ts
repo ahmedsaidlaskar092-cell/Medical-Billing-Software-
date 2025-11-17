@@ -313,7 +313,6 @@ export const mockTests: Test[] = [
   // 14) Full-Length Studies
   { id: 'test-XFL01', code: 'XFL01', name: 'X-Ray Full spine AP', mrp: 1500, department: 'Full-Length Studies' },
   { id: 'test-XFL02', code: 'XFL02', name: 'X-Ray Full spine LAT', mrp: 1500, department: 'Full-Length Studies' },
-  // FIX: Completed the truncated test data and closed the array.
   { id: 'test-XFL03', code: 'XFL03', name: 'X-Ray Full leg length / Scanogram', mrp: 1500, department: 'Full-Length Studies' },
 ];
 

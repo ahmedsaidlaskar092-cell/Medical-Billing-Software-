@@ -1,27 +1,33 @@
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, Suspense, lazy, useEffect } from 'react';
 import { AuthContext, AuthState } from './hooks/useAuth';
 import { User, UserRole } from './types';
 import LandingPage from './components/auth/LandingPage';
 import Layout from './components/layout/Layout';
-import Dashboard from './components/dashboard/Dashboard';
-import Billing from './components/billing/Billing';
-import BillHistory from './components/history/BillHistory';
-import DueManagement from './components/management/DueManagement';
-import Settings from './components/settings/Settings';
-import Reports from './components/reports/Reports';
-import ProductManagement from './components/management/ProductManagement';
-import TestManagement from './components/management/TestManagement';
-import SalaryManagement from './components/management/SalaryManagement';
-import DailyExpenses from './components/management/DailyExpenses';
-import PartyManagement from './components/management/PartyManagement';
-import DeviceManagement from './components/management/DeviceManagement';
 import { mockUsers, mockOwnerDevices } from './services/mockData';
 import { ThemeProvider } from './hooks/useTheme';
+import Spinner from './components/ui/Spinner';
+import SplashScreen from './components/ui/SplashScreen';
 
 export type Page = 'dashboard' | 'billing' | 'history' | 'dues' | 'reports' | 'products' | 'tests' | 'settings' | 'salary' | 'expenses' | 'parties' | 'devices';
 
+// Lazy load page components for code splitting
+const Dashboard = lazy(() => import('./components/dashboard/Dashboard'));
+const Billing = lazy(() => import('./components/billing/Billing'));
+const BillHistory = lazy(() => import('./components/history/BillHistory'));
+const DueManagement = lazy(() => import('./components/management/DueManagement'));
+const Settings = lazy(() => import('./components/settings/Settings'));
+const Reports = lazy(() => import('./components/reports/Reports'));
+const ProductManagement = lazy(() => import('./components/management/ProductManagement'));
+const TestManagement = lazy(() => import('./components/management/TestManagement'));
+const SalaryManagement = lazy(() => import('./components/management/SalaryManagement'));
+const DailyExpenses = lazy(() => import('./components/management/DailyExpenses'));
+const PartyManagement = lazy(() => import('./components/management/PartyManagement'));
+const DeviceManagement = lazy(() => import('./components/management/DeviceManagement'));
+
+
 const AppContent: React.FC = () => {
+    const [isAppLoading, setIsAppLoading] = useState(true);
     const [authState, setAuthState] = useState<AuthState>({
         isAuthenticated: false,
         user: null,
@@ -31,6 +37,12 @@ const AppContent: React.FC = () => {
     const [page, setPage] = useState<Page>('dashboard');
 
     const [ownerDevices, setOwnerDevices] = useState<string[]>(mockOwnerDevices);
+
+    useEffect(() => {
+        // Simulate initial app setup/hydration
+        const timer = setTimeout(() => setIsAppLoading(false), 1500);
+        return () => clearTimeout(timer);
+    }, []);
 
     const login = useCallback((email: string, password: string): Promise<string> => {
         return new Promise((resolve, reject) => {
@@ -57,10 +69,12 @@ const AppContent: React.FC = () => {
     }, [ownerDevices]);
     
     const logout = useCallback(() => {
-        if (authState.user && authState.role === UserRole.OWNER) {
-            setOwnerDevices(prev => prev.filter(id => id !== authState.user!.id));
-        }
         setAuthState({ isAuthenticated: false, user: null, role: null, isLoading: false });
+        // Note: In a real app, you might not want to automatically remove the device on logout,
+        // but for this mock, it simulates freeing up a slot.
+        if (authState.user && authState.role === UserRole.OWNER) {
+            // setOwnerDevices(prev => prev.filter(id => id !== authState.user!.id));
+        }
     }, [authState.user, authState.role]);
 
     const removeDevice = useCallback((userIdToRemove: string) => {
@@ -107,6 +121,10 @@ const AppContent: React.FC = () => {
         }
     }
 
+    if (isAppLoading) {
+        return <SplashScreen />;
+    }
+
     if (!authContextValue.isAuthenticated) {
         return (
             <AuthContext.Provider value={authContextValue}>
@@ -118,7 +136,9 @@ const AppContent: React.FC = () => {
     return (
         <AuthContext.Provider value={authContextValue}>
             <Layout page={page} setPage={setPage}>
-                {renderPage()}
+                <Suspense fallback={<div className="flex justify-center items-center h-full w-full"><Spinner /></div>}>
+                    {renderPage()}
+                </Suspense>
             </Layout>
         </AuthContext.Provider>
     );

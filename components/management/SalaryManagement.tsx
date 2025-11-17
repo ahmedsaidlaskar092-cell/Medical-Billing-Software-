@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import useMockData from '../../hooks/useMockData';
 import { Employee, SalaryPayment, SalaryPaymentType } from '../../types';
@@ -7,6 +6,7 @@ import { formatCurrency, exportToCsv } from '../../services/utils';
 import Modal from '../ui/Modal';
 import ConfirmationDialog from '../ui/ConfirmationDialog';
 import Icon from '../ui/Icon';
+import { useToast } from '../../hooks/useToast';
 
 const SalaryManagement: React.FC = () => {
     const { 
@@ -18,6 +18,7 @@ const SalaryManagement: React.FC = () => {
         deleteEmployee,
         addSalaryPayment
     } = useMockData();
+    const { addToast } = useToast();
 
     const [activeTab, setActiveTab] = useState<'employees' | 'records'>('employees');
     const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
@@ -53,22 +54,33 @@ const SalaryManagement: React.FC = () => {
     
     const handleEmployeeSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (selectedEmployee) {
-            updateEmployee({ ...employeeForm, id: selectedEmployee.id });
-        } else {
-            addEmployee(employeeForm);
+        try {
+            if (selectedEmployee) {
+                updateEmployee({ ...employeeForm, id: selectedEmployee.id });
+                addToast({ message: 'Employee updated successfully!', type: 'success' });
+            } else {
+                addEmployee(employeeForm);
+                addToast({ message: 'Employee added successfully!', type: 'success' });
+            }
+            handleCloseEmployeeModal();
+        } catch (error) {
+            addToast({ message: 'Failed to save employee.', type: 'error' });
         }
-        handleCloseEmployeeModal();
     };
 
     const handlePaymentSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if(!paymentForm.employeeId) {
-            alert("Please select an employee.");
+            addToast({ message: 'Please select an employee.', type: 'error' });
             return;
         }
-        addSalaryPayment(paymentForm);
-        handleClosePaymentModal();
+        try {
+            addSalaryPayment(paymentForm);
+            addToast({ message: 'Payment recorded successfully!', type: 'success' });
+            handleClosePaymentModal();
+        } catch (error) {
+             addToast({ message: 'Failed to record payment.', type: 'error' });
+        }
     }
     
     const handleDeleteClick = (employee: Employee) => {
@@ -79,6 +91,7 @@ const SalaryManagement: React.FC = () => {
     const handleConfirmDelete = () => {
         if (selectedEmployee) {
             deleteEmployee(selectedEmployee.id);
+            addToast({ message: `Employee "${selectedEmployee.name}" deleted.`, type: 'success' });
         }
         setIsDeleteConfirmOpen(false);
         setSelectedEmployee(null);

@@ -1,15 +1,18 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import useMockData from '../../hooks/useMockData';
 import { Product } from '../../types';
 import Spinner from '../ui/Spinner';
 import { formatCurrency } from '../../services/utils';
 import Modal from '../ui/Modal';
 import ConfirmationDialog from '../ui/ConfirmationDialog';
+import { useToast } from '../../hooks/useToast';
 
 const ProductManagement: React.FC = () => {
     const { products, loading, addProduct, updateProduct, deleteProduct } = useMockData();
+    const { addToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -23,12 +26,22 @@ const ProductManagement: React.FC = () => {
     };
     const [productForm, setProductForm] = useState(initialFormState);
 
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 300);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [searchTerm]);
+
     const filteredProducts = useMemo(() => {
         return products.filter(p => 
-            p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.category.toLowerCase().includes(searchTerm.toLowerCase())
+            p.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+            p.category.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
         );
-    }, [products, searchTerm]);
+    }, [products, debouncedSearchTerm]);
 
     const handleOpenModal = (product?: Product) => {
         setSelectedProduct(product || null);
@@ -54,12 +67,18 @@ const ProductManagement: React.FC = () => {
     
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (selectedProduct) {
-            updateProduct({ ...productForm, id: selectedProduct.id });
-        } else {
-            addProduct(productForm);
+        try {
+            if (selectedProduct) {
+                updateProduct({ ...productForm, id: selectedProduct.id });
+                addToast({ message: 'Product updated successfully!', type: 'success' });
+            } else {
+                addProduct(productForm);
+                addToast({ message: 'Product added successfully!', type: 'success' });
+            }
+            handleCloseModal();
+        } catch (error) {
+            addToast({ message: 'An unexpected error occurred.', type: 'error' });
         }
-        handleCloseModal();
     };
     
     const handleDeleteClick = (product: Product) => {
@@ -70,6 +89,7 @@ const ProductManagement: React.FC = () => {
     const handleConfirmDelete = () => {
         if (selectedProduct) {
             deleteProduct(selectedProduct.id);
+            addToast({ message: `Product "${selectedProduct.name}" deleted.`, type: 'success' });
         }
         setIsDeleteConfirmOpen(false);
         setSelectedProduct(null);
@@ -122,6 +142,9 @@ const ProductManagement: React.FC = () => {
                         ))}
                     </tbody>
                 </table>
+                 {filteredProducts.length === 0 && (
+                    <div className="text-center py-10 text-text-secondary">No products found.</div>
+                )}
             </div>
 
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={selectedProduct ? 'Edit Product' : 'Add New Product'}>

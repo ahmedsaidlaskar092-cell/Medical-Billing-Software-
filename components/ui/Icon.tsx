@@ -4,12 +4,10 @@ import React from 'react';
 interface IconProps {
     name: string;
     className?: string;
-    // FIX: Add style prop to allow inline styles.
     style?: React.CSSProperties;
 }
 
 const Icon: React.FC<IconProps> = ({ name, className = 'w-6 h-6', style }) => {
-    // FIX: Use React.ReactNode to avoid "Cannot find namespace 'JSX'" error.
     const icons: { [key: string]: React.ReactNode } = {
         dashboard: <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l3-3m0 0l3-3m-3 3v6m0-6h6m-6 3h6m-6-3l3-3m-3 3l3 3" />,
         billing: <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-1.5h5.25m-5.25 0h5.25m-5.25 0h5.25m-5.25 0h5.25M3 4.5h15a2.25 2.25 0 012.25 2.25v10.5a2.25 2.25 0 01-2.25 2.25H3a2.25 2.25 0 01-2.25-2.25V6.75A2.25 2.25 0 013 4.5z" />,
@@ -27,7 +25,7 @@ const Icon: React.FC<IconProps> = ({ name, className = 'w-6 h-6', style }) => {
         download: <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />,
         'arrow-up': <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />,
         'arrow-down': <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />,
-        'receipt-refund': <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991-2.696a4.5 4.5 0 016.364 0l1.09 1.09m-8.542-1.09a4.5 4.5 0 00-6.364 0l-1.09 1.09m10.9-10.9l-1.09 1.09a4.5 4.5 0 01-6.364 0l-1.09-1.09m0 0l-1.09 1.09a4.5 4.5 0 01-6.364 0l-1.09-1.09" />,
+        'receipt-refund': <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991-2.696a4.5 4.5 0 016.364 0l1.09 1.09m-8.542-1.09a4.5 4.5 0 00-6.364 0l-1.09 1.09m10.9-10.9l-1.09 1.09a4.5 4.5 0 01-6.364 0l-1.09-1.09" />,
         users: <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m-7.289 2.72a3 3 0 01-4.682 0 8.986 8.986 0 013.741.479m-9.873-4.56l-3.873 3.873a3 3 0 004.243 4.243l3.873-3.873M12 12.75h.008v.008H12v-.008z" />,
         devices: <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h9.75a2.25 2.25 0 012.25 2.25z" />,
     };

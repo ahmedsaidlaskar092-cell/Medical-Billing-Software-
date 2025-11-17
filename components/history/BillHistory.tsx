@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import useMockData from '../../hooks/useMockData';
 import { Bill, BillType } from '../../types';
 import { formatCurrency, exportToCsv } from '../../services/utils';
@@ -17,6 +17,19 @@ const BillHistory: React.FC = () => {
         dateFrom: '',
         dateTo: '',
     });
+    const [debouncedCustomer, setDebouncedCustomer] = useState('');
+    const [debouncedBillNo, setDebouncedBillNo] = useState('');
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedCustomer(filters.customer);
+            setDebouncedBillNo(filters.billNo);
+        }, 300); // 300ms debounce delay
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [filters.customer, filters.billNo]);
 
     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFilters(prev => ({...prev, [e.target.name]: e.target.value}));
@@ -39,13 +52,13 @@ const BillHistory: React.FC = () => {
             const dateFilter = (!dateFrom || date >= dateFrom) && (!dateTo || date <= dateTo);
 
             return (
-                customerName.toLowerCase().includes(filters.customer.toLowerCase()) &&
-                bill.billNo.toLowerCase().includes(filters.billNo.toLowerCase()) &&
+                customerName.toLowerCase().includes(debouncedCustomer.toLowerCase()) &&
+                bill.billNo.toLowerCase().includes(debouncedBillNo.toLowerCase()) &&
                 statusFilter &&
                 dateFilter
             );
         });
-    }, [bills, filters]);
+    }, [bills, filters.status, filters.dateFrom, filters.dateTo, debouncedCustomer, debouncedBillNo]);
 
     const handleExport = () => {
         const dataToExport = filteredBills.map(b => ({

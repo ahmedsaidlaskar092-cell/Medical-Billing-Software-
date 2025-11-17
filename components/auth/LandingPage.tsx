@@ -1,33 +1,32 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import Icon from '../ui/Icon';
+import { useToast } from '../../hooks/useToast';
 
 const AuthForm: React.FC = () => {
     const [isLoginView, setIsLoginView] = useState(true);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const { login, signup } = useAuth();
+    const { addToast } = useToast();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
-        setSuccess('');
         setIsLoading(true);
         try {
             if (isLoginView) {
-                await login(email, password);
+                const message = await login(email, password);
+                addToast({ message, type: 'success' });
                 // The App component will handle the redirect
             } else {
                 const message = await signup(fullName, email, password);
-                setSuccess(message);
+                addToast({ message, type: 'success' });
                 setIsLoginView(true); // Switch to login view after successful signup
             }
         } catch (err: any) {
-            setError(err.toString());
+            addToast({ message: err.toString(), type: 'error' });
         } finally {
             setIsLoading(false);
         }
@@ -39,9 +38,6 @@ const AuthForm: React.FC = () => {
                 <h1 className="text-4xl font-poppins font-bold text-primary mb-2">Welcome</h1>
                 <p className="text-text-secondary">{isLoginView ? 'Log in to continue' : 'Create your account'}</p>
             </div>
-
-            {error && <div className="bg-danger/20 border border-danger text-danger p-3 rounded-lg mb-4 text-center">{error}</div>}
-            {success && <div className="bg-success/20 border border-success text-success p-3 rounded-lg mb-4 text-center">{success}</div>}
             
             <form onSubmit={handleSubmit} className="space-y-6">
                 {!isLoginView && (
@@ -89,7 +85,7 @@ const AuthForm: React.FC = () => {
             </form>
 
             <div className="text-center mt-6">
-                <button onClick={() => { setIsLoginView(!isLoginView); setError(''); setSuccess(''); }} className="text-primary hover:underline">
+                <button onClick={() => { setIsLoginView(!isLoginView); }} className="text-primary hover:underline">
                     {isLoginView ? 'Need an account? Sign up' : 'Already have an account? Login'}
                 </button>
             </div>

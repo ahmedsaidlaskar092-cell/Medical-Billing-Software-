@@ -6,8 +6,8 @@ import { numberToWordsIndian, formatCurrency } from '../../services/utils';
 import PrintModal from '../print/PrintModal';
 import Icon from '../ui/Icon';
 import A4Bill from '../print/A4Bill';
-// FIX: mockSettings is now exported and can be imported.
 import { mockSettings } from '../../services/mockData';
+import { useToast } from '../../hooks/useToast';
 
 const useReactToPrint = (reactToPrint as any)?.default?.useReactToPrint || (reactToPrint as any)?.useReactToPrint;
 
@@ -21,6 +21,7 @@ const Billing: React.FC = () => {
     
     const [searchTerm, setSearchTerm] = useState('');
     const { products, tests, addBill } = useMockData();
+    const { addToast } = useToast();
     const [searchResults, setSearchResults] = useState<(Product | Test)[]>([]);
 
     const [showPrintModal, setShowPrintModal] = useState(false);
@@ -30,7 +31,7 @@ const Billing: React.FC = () => {
     const handleDownload = useReactToPrint ? useReactToPrint({
         content: () => a4PrintRef.current,
         documentTitle: `Invoice-${lastGeneratedBill?.billNo}`,
-    }) : () => alert('Print service failed to load.');
+    }) : () => addToast({ message: 'Print service failed to load.', type: 'error' });
 
 
     const subtotal = useMemo(() => items.reduce((acc, item) => acc + item.price * item.quantity, 0), [items]);
@@ -119,7 +120,7 @@ const Billing: React.FC = () => {
         if (!lastGeneratedBill) return;
         const phone = lastGeneratedBill.patient?.phone || '';
         if (!phone) {
-            alert("No phone number available to share.");
+            addToast({ message: "No phone number available to share.", type: 'error' });
             return;
         }
         const textBillContent = new TextBillGenerator(lastGeneratedBill, mockSettings).generate();
@@ -129,30 +130,39 @@ const Billing: React.FC = () => {
 
     const handleSaveAndPrint = () => {
         if(items.length === 0) {
-            alert("Please add items to the bill.");
+            addToast({ message: 'Please add items to the bill.', type: 'error'});
             return;
         }
+        if(billType === BillType.MEDICAL && !patient.name) {
+             addToast({ message: 'Patient name is required for medical bills.', type: 'error'});
+             return;
+        }
 
-        const newBill: Bill = {
-            id: `bill-${Date.now()}`,
-            billNo: `B${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${String(Date.now()).slice(-3)}`,
-            date: new Date().toISOString(),
-            time: new Date().toLocaleTimeString(),
-            billType,
-            items,
-            subtotal,
-            discount,
-            grandTotal,
-            paidAmount,
-            dueAmount,
-            payments,
-            ...(billType === BillType.MEDICAL && { patient: patient as Patient, reportStatus: ReportStatus.NOT_DELIVERED }),
-            ...(billType === BillType.RETAIL && { customerName }),
-        };
-        
-        addBill(newBill);
-        setLastGeneratedBill(newBill);
-        resetBill();
+        try {
+            const newBill: Bill = {
+                id: `bill-${Date.now()}`,
+                billNo: `B${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${String(Date.now()).slice(-3)}`,
+                date: new Date().toISOString(),
+                time: new Date().toLocaleTimeString(),
+                billType,
+                items,
+                subtotal,
+                discount,
+                grandTotal,
+                paidAmount,
+                dueAmount,
+                payments,
+                ...(billType === BillType.MEDICAL && { patient: patient as Patient, reportStatus: ReportStatus.NOT_DELIVERED }),
+                ...(billType === BillType.RETAIL && { customerName }),
+            };
+            
+            addBill(newBill);
+            setLastGeneratedBill(newBill);
+            addToast({ message: 'Bill generated successfully!', type: 'success' });
+            resetBill();
+        } catch (error) {
+            addToast({ message: 'Failed to generate bill.', type: 'error' });
+        }
     };
 
     const inputClasses = "w-full bg-card border border-border-color rounded-lg px-4 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary transition-all";
@@ -250,7 +260,7 @@ const Billing: React.FC = () => {
                     </>
                 )}
                  {lastGeneratedBill && (
-                    <div className="flex-grow flex flex-col items-center justify-center text-center">
+                    <div className="flex-grow flex flex-col items-center justify-center text-center animate-fadeIn">
                         <div className="bg-success/20 border border-success text-success p-4 rounded-full mb-6">
                              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
                         </div>

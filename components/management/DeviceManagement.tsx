@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { User, UserRole } from '../../types';
 import { useAuth } from '../../hooks/useAuth';
 import Icon from '../ui/Icon';
 import ConfirmationDialog from '../ui/ConfirmationDialog';
+import { useToast } from '../../hooks/useToast';
 
 interface DeviceManagementProps {
     authorizedDevices: string[];
@@ -13,6 +13,7 @@ interface DeviceManagementProps {
 
 const DeviceManagement: React.FC<DeviceManagementProps> = ({ authorizedDevices, allUsers, removeDevice }) => {
     const { user: currentUser } = useAuth();
+    const { addToast } = useToast();
     const [deviceToRemove, setDeviceToRemove] = useState<User | null>(null);
 
     const authorizedUsers = authorizedDevices.map(deviceId => {
@@ -26,6 +27,7 @@ const DeviceManagement: React.FC<DeviceManagementProps> = ({ authorizedDevices, 
     const handleConfirmRemove = () => {
         if (deviceToRemove) {
             removeDevice(deviceToRemove.id);
+            addToast({ message: `Device for ${deviceToRemove.fullName} has been removed.`, type: 'success' });
             setDeviceToRemove(null);
         }
     };

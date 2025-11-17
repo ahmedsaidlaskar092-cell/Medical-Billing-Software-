@@ -6,6 +6,7 @@ import { formatCurrency } from '../../services/utils';
 import Modal from '../ui/Modal';
 import ConfirmationDialog from '../ui/ConfirmationDialog';
 import Icon from '../ui/Icon';
+import { useToast } from '../../hooks/useToast';
 
 type SortDirection = 'ascending' | 'descending';
 type SortConfig = {
@@ -17,6 +18,7 @@ const ITEMS_PER_PAGE = 15;
 
 const TestManagement: React.FC = () => {
     const { tests, loading, addTest, updateTest, deleteTest } = useMockData();
+    const { addToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,24 +104,30 @@ const TestManagement: React.FC = () => {
     
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const isDuplicate = tests.some(
-            t => t.code.toLowerCase() === testForm.code.toLowerCase() && t.id !== selectedTest?.id
-        );
-        if (isDuplicate) {
-            alert(`A test with code "${testForm.code}" already exists.`);
-            return;
-        }
-        if (testForm.mrp < 0) {
-            alert("MRP cannot be negative.");
-            return;
-        }
+        try {
+            const isDuplicate = tests.some(
+                t => t.code.toLowerCase() === testForm.code.toLowerCase() && t.id !== selectedTest?.id
+            );
+            if (isDuplicate) {
+                addToast({ message: `A test with code "${testForm.code}" already exists.`, type: 'error'});
+                return;
+            }
+            if (testForm.mrp < 0) {
+                addToast({ message: "MRP cannot be negative.", type: 'error'});
+                return;
+            }
 
-        if (selectedTest) {
-            updateTest({ ...testForm, id: selectedTest.id });
-        } else {
-            addTest(testForm);
+            if (selectedTest) {
+                updateTest({ ...testForm, id: selectedTest.id });
+                addToast({ message: 'Test updated successfully!', type: 'success' });
+            } else {
+                addTest(testForm);
+                addToast({ message: 'Test added successfully!', type: 'success' });
+            }
+            handleCloseModal();
+        } catch (error) {
+            addToast({ message: 'An unexpected error occurred.', type: 'error' });
         }
-        handleCloseModal();
     };
     
     const handleDeleteClick = (test: Test) => {
@@ -130,6 +138,7 @@ const TestManagement: React.FC = () => {
     const handleConfirmDelete = () => {
         if (selectedTest) {
             deleteTest(selectedTest.id);
+            addToast({ message: `Test "${selectedTest.name}" deleted.`, type: 'success' });
         }
         setIsDeleteConfirmOpen(false);
         setSelectedTest(null);

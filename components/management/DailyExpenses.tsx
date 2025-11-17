@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import useMockData from '../../hooks/useMockData';
 import { DailyExpense } from '../../types';
@@ -7,9 +6,11 @@ import { formatCurrency, exportToCsv } from '../../services/utils';
 import Modal from '../ui/Modal';
 import ConfirmationDialog from '../ui/ConfirmationDialog';
 import Icon from '../ui/Icon';
+import { useToast } from '../../hooks/useToast';
 
 const DailyExpenses: React.FC = () => {
     const { dailyExpenses, loading, addDailyExpense, updateDailyExpense, deleteDailyExpense } = useMockData();
+    const { addToast } = useToast();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [selectedExpense, setSelectedExpense] = useState<DailyExpense | null>(null);
@@ -60,12 +61,18 @@ const DailyExpenses: React.FC = () => {
     
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (selectedExpense) {
-            updateDailyExpense({ ...expenseForm, id: selectedExpense.id });
-        } else {
-            addDailyExpense(expenseForm);
+        try {
+            if (selectedExpense) {
+                updateDailyExpense({ ...expenseForm, id: selectedExpense.id });
+                addToast({ message: 'Expense updated successfully!', type: 'success' });
+            } else {
+                addDailyExpense(expenseForm);
+                addToast({ message: 'Expense added successfully!', type: 'success' });
+            }
+            handleCloseModal();
+        } catch (error) {
+            addToast({ message: 'Failed to save expense.', type: 'error' });
         }
-        handleCloseModal();
     };
     
     const handleDeleteClick = (expense: DailyExpense) => {
@@ -76,6 +83,7 @@ const DailyExpenses: React.FC = () => {
     const handleConfirmDelete = () => {
         if (selectedExpense) {
             deleteDailyExpense(selectedExpense.id);
+            addToast({ message: 'Expense deleted.', type: 'success' });
         }
         setIsDeleteConfirmOpen(false);
         setSelectedExpense(null);

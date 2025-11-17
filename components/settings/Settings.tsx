@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
 import useMockData from '../../hooks/useMockData';
 import { useTheme, themes } from '../../hooks/useTheme';
+import { useToast } from '../../hooks/useToast';
 
 const Settings: React.FC = () => {
     const { settings: initialSettings, setSettings } = useMockData();
     const [formData, setFormData] = useState(initialSettings);
     const { theme, setTheme } = useTheme();
+    const { addToast } = useToast();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -14,7 +15,7 @@ const Settings: React.FC = () => {
 
     const handleSave = () => {
         setSettings(formData);
-        alert('Settings saved!');
+        addToast({ message: 'Settings saved successfully!', type: 'success' });
     };
 
     const inputClasses = "w-full bg-card border border-border-color rounded-lg px-4 py-2 text-text-primary";

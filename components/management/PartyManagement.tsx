@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import useMockData from '../../hooks/useMockData';
 import { Party, PartyPayment, PaymentMode } from '../../types';
@@ -7,6 +6,7 @@ import { formatCurrency, exportToCsv } from '../../services/utils';
 import Modal from '../ui/Modal';
 import ConfirmationDialog from '../ui/ConfirmationDialog';
 import Icon from '../ui/Icon';
+import { useToast } from '../../hooks/useToast';
 
 const PartyManagement: React.FC = () => {
     const { 
@@ -18,6 +18,7 @@ const PartyManagement: React.FC = () => {
         deleteParty,
         addPartyPayment
     } = useMockData();
+    const { addToast } = useToast();
 
     const [activeTab, setActiveTab] = useState<'parties' | 'records'>('parties');
     const [isPartyModalOpen, setIsPartyModalOpen] = useState(false);
@@ -53,22 +54,33 @@ const PartyManagement: React.FC = () => {
     
     const handlePartySubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (selectedParty) {
-            updateParty({ ...partyForm, id: selectedParty.id });
-        } else {
-            addParty(partyForm);
+        try {
+            if (selectedParty) {
+                updateParty({ ...partyForm, id: selectedParty.id });
+                addToast({ message: 'Party updated successfully!', type: 'success' });
+            } else {
+                addParty(partyForm);
+                addToast({ message: 'Party added successfully!', type: 'success' });
+            }
+            handleClosePartyModal();
+        } catch (error) {
+            addToast({ message: 'Failed to save party.', type: 'error' });
         }
-        handleClosePartyModal();
     };
 
     const handlePaymentSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if(!paymentForm.partyId) {
-            alert("Please select a party.");
+            addToast({ message: 'Please select a party.', type: 'error' });
             return;
         }
-        addPartyPayment(paymentForm);
-        handleClosePaymentModal();
+        try {
+            addPartyPayment(paymentForm);
+            addToast({ message: 'Payment recorded successfully!', type: 'success' });
+            handleClosePaymentModal();
+        } catch (error) {
+            addToast({ message: 'Failed to record payment.', type: 'error' });
+        }
     }
     
     const handleDeleteClick = (party: Party) => {
@@ -79,6 +91,7 @@ const PartyManagement: React.FC = () => {
     const handleConfirmDelete = () => {
         if (selectedParty) {
             deleteParty(selectedParty.id);
+            addToast({ message: `Party "${selectedParty.name}" deleted.`, type: 'success' });
         }
         setIsDeleteConfirmOpen(false);
         setSelectedParty(null);

@@ -49,7 +49,9 @@ const Layout: React.FC<LayoutProps> = ({ children, page, setPage }) => {
                     </div>
                 </header>
                 <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto overflow-x-hidden">
-                    {children}
+                    <div key={page} className="animate-fadeIn">
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>
