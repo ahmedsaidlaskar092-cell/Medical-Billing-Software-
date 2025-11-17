@@ -1,0 +1,5 @@
+{
+  "name": "Smart Bill Ultimate",
+  "description": "A centralized billing system for medical and retail businesses, featuring real-time dashboards for owners, multiple print formats, due management, and Gemini AI-powered insights. Built with a modern UI.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Bill Ultimate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              poppins: ['Poppins', 'sans-serif'],
+            },
+            colors: {
+              primary: 'var(--color-primary)',
+              secondary: 'var(--color-secondary)',
+              accent: 'var(--color-accent)',
+              success: 'var(--color-success)',
+              danger: 'var(--color-danger)',
+              background: 'var(--color-background)',
+              card: 'var(--color-card)',
+              'text-primary': 'var(--color-text-primary)',
+              'text-secondary': 'var(--color-text-secondary)',
+              'border-color': 'var(--color-border)',
+            },
+            boxShadow: {
+              'primary': 'var(--color-shadow-primary)',
+              'secondary': 'var(--color-shadow-secondary)',
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      /* Base theme variables. These will be updated by the useTheme hook. */
+      :root {
+        --color-primary: #2979FF;
+        --color-secondary: #673AB7;
+        --color-accent: #FF9800;
+        --color-success: #4CAF50;
+        --color-danger: #F44336;
+        --color-background: #0D0C22;
+        --color-card: rgba(255, 255, 255, 0.05);
+        --color-text-primary: #FFFFFF;
+        --color-text-secondary: #9CA3AF;
+        --color-border: rgba(255, 255, 255, 0.1);
+        --color-shadow-primary: 0 0 15px rgba(41, 121, 255, 0.6), 0 0 5px rgba(41, 121, 255, 0.8);
+        --color-shadow-secondary: 0 0 15px rgba(103, 58, 183, 0.6), 0 0 5px rgba(103, 58, 183, 0.8);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.1",
+    "recharts": "https://aistudiocdn.com/recharts@^3.4.1",
+    "react-to-print": "https://aistudiocdn.com/react-to-print@^3.2.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-background text-text-primary">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
